@@ -16,8 +16,9 @@ from pathlib import Path
 import tennis_paris as tp
 
 START, END = dt.time(6, 0), dt.time(10, 0)
-WANTED = {4: {18}, 5: set(range(12, 20))}  # weekday -> allowed start hours: Fri 18h, Sat 12h-19h
-SKIP_DATES = set(os.environ.get("SKIP_DATES", "").split())  # dd/mm/YYYY days Julien can't play
+WANTED = {4: {18, 19}, 5: set(range(12, 20))}  # weekday -> allowed start hours: Fri 18h-20h, Sat 12h-20h
+# dd/mm/YYYY days to alert on, in priority order; later ones are flagged as backups. Empty = alert on nothing.
+ONLY_DATES = os.environ.get("ONLY_DATES", "").split()
 RELEASE_NOTIFY_UNTIL = os.environ.get("RELEASE_NOTIFY_UNTIL", "")  # YYYY-MM-DD
 TOPIC = os.environ.get("NTFY_TOPIC", "")
 
@@ -45,7 +46,7 @@ def log(row: list) -> None:
 def wanted_slots(opener, now: dt.datetime) -> list[dict]:
     found = []
     for d in (now.date() + dt.timedelta(i) for i in range(7)):
-        if d.weekday() in WANTED and f"{d:%d/%m/%Y}" not in SKIP_DATES:
+        if d.weekday() in WANTED and f"{d:%d/%m/%Y}" in ONLY_DATES:
             found += [s for s in tp.free_slots(tp.search(opener, d), d)
                       if s["start"] > now and s["start"].hour in WANTED[d.weekday()]]
     return found
@@ -60,7 +61,10 @@ def poll(now: dt.datetime, target: dt.date, seen: set) -> tuple[bool, list, list
 
 
 def short(slots: list[dict]) -> str:
-    return ", ".join(f"{s['start']:%a %d/%m %Hh} {s['court'].split(' -')[0]}" for s in slots)
+    def label(s):
+        backup = ONLY_DATES and f"{s['start']:%d/%m/%Y}" != ONLY_DATES[0]
+        return f"{'BACKUP (only if Fri failed) ' if backup else ''}{s['start']:%a %d/%m %Hh} {s['court'].split(' -')[0]}"
+    return ", ".join(label(s) for s in sorted(slots, key=lambda s: s["start"]))
 
 
 def main() -> None:

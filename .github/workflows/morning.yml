@@ -23,7 +23,7 @@ jobs:
     env:
       TZ: Europe/Paris
       NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-      SKIP_DATES: "06/11/2026 07/11/2026"
+      ONLY_DATES: "13/11/2026 14/11/2026"  # first = priority, rest = backups; empty = no court alerts
       RELEASE_NOTIFY_UNTIL: "2026-11-08"
     steps:
       - uses: actions/checkout@v4
