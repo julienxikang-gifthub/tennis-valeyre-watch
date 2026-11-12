@@ -1,7 +1,9 @@
-"""Morning loop (GitHub Actions): log when day D+6 opens on tennis.paris.fr and push an alert
+"""Morning loop (GitHub Actions): log when the next day opens on tennispadel.paris.fr and push an alert
 (ntfy) when a wanted Tennis Valeyre slot is free. Alert-only: booking is done by hand.
 
-Polls every 2 min from START until D+6 opens, every 1 min for 30 min after, then every 5 min until END.
+The site moved in Nov 2026 and now opens about 12 days ahead (it was D+6), so the day to watch
+is found at start: the first day ahead that is still all "Ferme".
+Polls every 2 min from START until that day opens, every 1 min for 30 min after, then every 5 min until END.
 `--test` does a single poll and sends a test notification.
 """
 import csv
@@ -16,6 +18,7 @@ from pathlib import Path
 import tennis_paris as tp
 
 START, END = dt.time(6, 0), dt.time(10, 0)
+HORIZON = 14  # days ahead to look for wanted slots
 WANTED = {4: {18, 19}, 5: set(range(12, 20))}  # weekday -> allowed start hours: Fri 18h-20h, Sat 12h-20h
 # dd/mm/YYYY days to alert on, in priority order; later ones are flagged as backups. Empty = alert on nothing.
 ONLY_DATES = os.environ.get("ONLY_DATES", "").split()
@@ -45,7 +48,7 @@ def log(row: list) -> None:
 
 def wanted_slots(opener, now: dt.datetime) -> list[dict]:
     found = []
-    for d in (now.date() + dt.timedelta(i) for i in range(7)):
+    for d in (now.date() + dt.timedelta(i) for i in range(HORIZON + 1)):
         if d.weekday() in WANTED and f"{d:%d/%m/%Y}" in ONLY_DATES:
             found += [s for s in tp.free_slots(tp.search(opener, d), d)
                       if s["start"] > now and s["start"].hour in WANTED[d.weekday()]]
@@ -71,7 +74,10 @@ def main() -> None:
     DATA.mkdir(exist_ok=True)
     seen = set(json.loads(SEEN.read_text())) if SEEN.exists() else set()
     today = dt.date.today()
-    target = today + dt.timedelta(6)
+    try:
+        target = tp.first_closed_day(tp.new_opener(), today) or today + dt.timedelta(12)
+    except Exception:
+        target = today + dt.timedelta(12)
 
     if "--test" in sys.argv:
         now = dt.datetime.now()
@@ -104,7 +110,7 @@ def main() -> None:
                            f"{target:%a %d/%m} opened by {now:%H:%M}{note}. {len(free)} free Valeyre court-hours.",
                            "low")
             if new:
-                notify("Tennis Valeyre FREE", f"{short(new)}. Book now on tennis.paris.fr")
+                notify("Tennis Valeyre FREE", f"{short(new)}. Book now on tennispadel.paris.fr")
                 seen.update(s["key"] for s in new)
                 SEEN.write_text(json.dumps(sorted(seen)))
         except Exception as e:
