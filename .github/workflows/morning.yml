@@ -2,7 +2,9 @@ name: Tennis morning watch
 
 on:
   schedule:
+    # Backup only: GitHub has been starting this 7-8 h late, and a start after 10:00 Paris does nothing.
     - cron: "7 4 * * *"  # 05:07 Paris in winter, 06:07 in summer; the script waits until 06:00 Paris
+  # Main start: an outside timer (cron-job.org) calls the dispatch API at 05:50 Paris with inputs.test = "false".
   workflow_dispatch:
     inputs:
       test:

@@ -1,6 +1,7 @@
 # Tennis Valeyre watch
 
-Every morning (06:00–10:00 Paris) a GitHub Actions job reads the public slot table of
+Every morning (06:00–10:00 Paris; started at 05:50 by an outside timer, cron-job.org, because GitHub's own
+schedule runs hours late) a GitHub Actions job reads the public slot table of
 tennispadel.paris.fr (the site moved from tennis.paris.fr in Nov 2026) for Tennis Valeyre. It:
 
 - logs when the next day to be released (about 12 days ahead) stops showing "Fermé" (`data/release_times.txt`, `data/release_log.csv`);

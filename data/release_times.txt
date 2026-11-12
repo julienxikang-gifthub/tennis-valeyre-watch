@@ -1,12 +1,1 @@
-Sat 07/11: still closed at 10:00 on Sun 01/11
-Sun 08/11: still closed at 10:00 on Mon 02/11
-Mon 09/11: still closed at 10:00 on Tue 03/11
-Tue 10/11: still closed at 10:00 on Wed 04/11
-Wed 11/11: still closed at 10:00 on Thu 05/11
-Thu 12/11: still closed at 10:00 on Fri 06/11
-Fri 13/11: still closed at 10:00 on Sat 07/11
-Sat 14/11: still closed at 10:00 on Sun 08/11
-Sun 15/11: still closed at 10:00 on Mon 09/11
-Mon 16/11: still closed at 10:00 on Tue 10/11
-Tue 17/11: still closed at 10:00 on Wed 11/11
-Wed 18/11: still closed at 10:00 on Thu 12/11
+01/11 to 12/11: no real readings. GitHub started the job after 10:00 every day, so nothing was checked (the old lines said "still closed at 10:00"; see git history).

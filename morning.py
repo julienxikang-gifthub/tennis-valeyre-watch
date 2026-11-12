@@ -88,10 +88,17 @@ def main() -> None:
                "default")
         return
 
+    started = dt.datetime.now()
+    end = dt.datetime.combine(today, END)
+    if started >= end:
+        # GitHub's own schedule often starts the job hours late; a late start has nothing to watch.
+        print(f"Started at {started:%H:%M}, after the {END:%H:%M} end of the window: nothing to do.")
+        return
+    context = f"watch started {started:%H:%M}, days open up to {target - dt.timedelta(1):%a %d/%m}"
+
     while dt.datetime.now() < dt.datetime.combine(today, START):
         time.sleep(30)
 
-    end = dt.datetime.combine(today, END)
     opened_at, first_poll = None, True
     while dt.datetime.now() < end:
         now = dt.datetime.now()
@@ -104,7 +111,7 @@ def main() -> None:
                 note = " (already open at first poll)" if first_poll else ""
                 with RELEASES.open("a", encoding="utf-8") as f:
                     f.write(f"{target:%a %d/%m} first seen open at {now:%H:%M:%S} on {today:%a %d/%m}{note}, "
-                            f"{len(free)} free Valeyre court-hours\n")
+                            f"{len(free)} free Valeyre court-hours ({context})\n")
                 if today.isoformat() <= RELEASE_NOTIFY_UNTIL:
                     notify("Tennis: new day released",
                            f"{target:%a %d/%m} opened by {now:%H:%M}{note}. {len(free)} free Valeyre court-hours.",
@@ -126,7 +133,7 @@ def main() -> None:
 
     if opened_at is None:
         with RELEASES.open("a", encoding="utf-8") as f:
-            f.write(f"{target:%a %d/%m}: still closed at {END:%H:%M} on {today:%a %d/%m}\n")
+            f.write(f"{target:%a %d/%m}: still closed at {END:%H:%M} on {today:%a %d/%m} ({context})\n")
 
 
 if __name__ == "__main__":
