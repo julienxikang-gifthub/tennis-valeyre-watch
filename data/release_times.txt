@@ -1,2 +1,3 @@
 01/11 to 12/11: no real readings. GitHub started the job after 10:00 every day, so nothing was checked (the old lines said "still closed at 10:00"; see git history).
 Thu 26/11: still closed at 10:00 on Tue 17/11 (watch started 05:50, days open up to Wed 25/11)
+Thu 03/12: still closed at 10:00 on Wed 18/11 (watch started 05:50, days open up to Wed 02/12)
